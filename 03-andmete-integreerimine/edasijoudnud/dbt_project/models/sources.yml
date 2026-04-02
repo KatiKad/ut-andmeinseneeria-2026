@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: staging
+    schema: staging
+    description: "API-st laetud toorandmed"
+    tables:
+      - name: users
+        description: "Kasutajaprofiilid randomuser.me API-st"
+        columns:
+          - name: uuid
+            tests:
+              - unique
+              - not_null
+          - name: email
+            tests:
+              - not_null
+      - name: posts
+        description: "Postitused jsonplaceholder API-st"
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            tests:
+              - not_null

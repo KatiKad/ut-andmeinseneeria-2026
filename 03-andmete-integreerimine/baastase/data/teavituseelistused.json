@@ -1,0 +1,62 @@
+[
+  {
+    "email": "Sincere@april.biz",
+    "newsletter_opt_in": true,
+    "preferred_channel": "email",
+    "updated_at": "2026-03-01"
+  },
+  {
+    "email": " Shanna@melissa.tv ",
+    "newsletter_opt_in": false,
+    "preferred_channel": "sms",
+    "updated_at": "2026-03-02"
+  },
+  {
+    "email": "Nathan@yesenia.net",
+    "newsletter_opt_in": true,
+    "preferred_channel": "push",
+    "updated_at": "2026-03-02"
+  },
+  {
+    "email": "Julianne.OConner@kory.org",
+    "newsletter_opt_in": true,
+    "preferred_channel": "email",
+    "updated_at": "2026-03-03"
+  },
+  {
+    "email": "lucio_hettinger@annie.ca",
+    "newsletter_opt_in": false,
+    "preferred_channel": "sms",
+    "updated_at": "2026-03-03"
+  },
+  {
+    "email": "Karley_Dach@jasper.info",
+    "newsletter_opt_in": true,
+    "preferred_channel": "email",
+    "updated_at": "2026-03-04"
+  },
+  {
+    "email": "telly.hoeger@billy.biz",
+    "newsletter_opt_in": false,
+    "preferred_channel": "push",
+    "updated_at": "2026-03-05"
+  },
+  {
+    "email": "Maxiime_Nienow@alicia.info",
+    "newsletter_opt_in": true,
+    "preferred_channel": "email",
+    "updated_at": "2026-03-05"
+  },
+  {
+    "email": "Moriah.Stanton@virginia.edu",
+    "newsletter_opt_in": true,
+    "preferred_channel": "email",
+    "updated_at": "2026-03-06"
+  },
+  {
+    "email": "varia@example.com",
+    "newsletter_opt_in": false,
+    "preferred_channel": "sms",
+    "updated_at": "2026-03-06"
+  }
+]
