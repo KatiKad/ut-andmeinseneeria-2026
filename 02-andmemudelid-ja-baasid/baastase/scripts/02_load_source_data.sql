@@ -1,6 +1,6 @@
 TRUNCATE TABLE source_muuk;
 
-\copy source_muuk (
+copy source_muuk (
     tellimuse_nr,
     kuupaev,
     kliendi_id,
