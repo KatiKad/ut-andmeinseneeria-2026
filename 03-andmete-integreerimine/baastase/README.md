@@ -217,6 +217,18 @@ Sama kehtib `scripts` kausta kohta:
 - hostis on fail `scripts/03_integrate_users.py`
 - konteineri sees on see fail `/scripts/03_integrate_users.py`
 
+Kui kasutad Windowsis `Git Bash`-i ja annad konteineri sisetee hosti terminalis käsule `docker compose exec` argumendina kaasa, siis võib `Git Bash` proovida algavat kaldkriipsu oma moodi tõlgendada.
+
+Selle vältimiseks kirjuta selline tee kujul `//scripts/...` või `//data/...`.
+
+Näiteks:
+
+```bash
+docker compose exec python python //scripts/03_integrate_users.py
+```
+
+See märkus puudutab ainult hosti terminalis käivitatavaid `docker compose exec` käske. Kui oled juba `psql` sees, kasuta endiselt tavalist konteineriteed kujul `/scripts/...`.
+
 See vahe on oluline kahel põhjusel:
 
 - `psql` loeb `\copy` käsus faili konteineri vaatest;
@@ -539,7 +551,7 @@ See samm tehakse hosti terminalis.
 Käivita valmis skript:
 
 ```bash
-docker compose exec python python /scripts/03_integrate_users.py
+docker compose exec python python //scripts/03_integrate_users.py
 ```
 
 Oodatav tulemus on umbes selline:
@@ -596,13 +608,16 @@ Oodatav tulemus on järgmine:
 
 - `intermediate.user_profile_enriched` vaates on 10 kasutajat;
 - lõpptabelis on 10 kasutajat;
-- neist 8 kasutajal on `account_status` olemas;
-- 2 kasutajal jääb `account_status` väärtus `NULL`.
+- neist 7 kasutajal on `account_status` olemas;
+- 3 kasutajal jääb `account_status` väärtus `NULL`.
 
-See juhtub kahel eri põhjusel:
+See juhtub seetõttu, et `CSV` failis on kolm e-posti võtit, mis ei sobitu `API` võtmetega:
 
-- ühel juhul on `CSV` failis e-posti aadressis kirjaviga `maxiime_nienow@alicia.info`;
-- teisel juhul puudub `CSV` failist üldse kirje kasutaja `moriah.stanton@virginia.edu` kohta.
+- kirjaveaga `maxiime_nienow@alicia.info`;
+- eraldi võtmega `delphine@adams.us`;
+- eraldi võtmega `puuduv.kasutaja@example.com`.
+
+Seetõttu jääb `account_status` puudu kasutajatel `sherwood@rosamond.me`, `chaim_mcdermott@dana.io` ja `rey.padberg@karina.biz`.
 
 See aitab näha, et andmete integreerimine ei tähenda ainult ühendamist, vaid ka allikate kvaliteedi kontrolli.
 
@@ -619,7 +634,7 @@ See samm tehakse hosti terminalis.
 Käivita sama skript teist korda:
 
 ```bash
-docker compose exec python python /scripts/03_integrate_users.py
+docker compose exec python python //scripts/03_integrate_users.py
 ```
 
 Seejärel kontrolli, et ridade arv ei kasvanud:
@@ -721,8 +736,21 @@ Tõenäoline põhjus:
 
 Lahendus:
 
-- kasuta käsku `docker compose exec python python /scripts/03_integrate_users.py`
+- kasuta käsku `docker compose exec python python //scripts/03_integrate_users.py`
 - ära käivita seda skripti oma hosti Pythoniga
+
+### Sümptom: `python: can't open file` või `Git Bash` tõlgendab tee valesti
+
+Tõenäoline põhjus:
+
+- kasutad Windowsis `Git Bash`-i
+- käivitasid `docker compose exec` käsu nii, et konteineri sisetee algas kujul `/scripts/...`
+
+Lahendus:
+
+- kasuta hosti terminalis konteineri siseteed kujul `//scripts/...` või `//data/...`
+- näiteks käsk `docker compose exec python python //scripts/03_integrate_users.py`
+- kui oled juba `psql` sees, kasuta seal edasi tavalist teed kujul `/scripts/...`
 
 ### Sümptom: `relation "staging.user_status" does not exist`
 
@@ -838,7 +866,7 @@ Copy-Item scripts/lisa_03_integrate_users_template.py scripts/lisa_03_integrate_
 4. käivita uus skript hosti terminalis:
 
 ```bash
-docker compose exec python python /scripts/lisa_03_integrate_users.py
+docker compose exec python python //scripts/lisa_03_integrate_users.py
 ```
 
 Selles lisaülesandes teed ise sama töövoo järgmise sammu läbi: liigud kahelt allikalt kolme allikani, aga hoiad kihid endiselt eraldi.
@@ -886,7 +914,7 @@ Võid teha selle otse `psql` sees või panna uude faili `scripts/05_summary_quer
 
 ### Lisaülesanne 5: kontrolli, kas ühendusvõtmed allikate vahel päriselt sobituvad
 
-Põhirajal näed lõpptulemusest, et kahel kasutajal jääb `account_status` puudu. Töövoog ise ei anna aga automaatselt teada, millised võtmed jäid sobitumata.
+Põhirajal näed lõpptulemusest, et kolmel kasutajal jääb `account_status` puudu. Töövoog ise ei anna aga automaatselt teada, millised võtmed jäid sobitumata.
 
 Selles ülesandes kontrollid võtmeid siis, kui allikad on juba tabelitena `staging` kihis olemas.
 
@@ -933,19 +961,22 @@ Selles praktikumis me seda keerukamat varianti ei kasuta. Siin on loogiline jada
 3. käivita kontrollskript hosti terminalis:
 
 ```bash
-docker compose exec python python /scripts/lisa_04_check_join_keys.py
+docker compose exec python python //scripts/lisa_04_check_join_keys.py
 ```
 
 Põhiraja oodatav tulemus on järgmine:
 
 ```text
 - Võrdlus: API ja CSV
-- Sobitunud e-posti võtmeid: 8
-- API poolel ilma CSV vasteta: 2
-  API ainult: maxime_nienow@alicia.info
-  API ainult: moriah.stanton@virginia.edu
-- CSV poolel ilma API vasteta: 1
+- Sobitunud e-posti võtmeid: 7
+- API poolel ilma CSV vasteta: 3
+  API ainult: chaim_mcdermott@dana.io
+  API ainult: rey.padberg@karina.biz
+  API ainult: sherwood@rosamond.me
+- CSV poolel ilma API vasteta: 3
+  CSV ainult: delphine@adams.us
   CSV ainult: maxiime_nienow@alicia.info
+  CSV ainult: puuduv.kasutaja@example.com
 ```
 
 See kontroll ei paranda kirjavigu automaatselt. Selle eesmärk on teha sobitumata võtmed nähtavaks, et saaksid need eraldi üle vaadata.

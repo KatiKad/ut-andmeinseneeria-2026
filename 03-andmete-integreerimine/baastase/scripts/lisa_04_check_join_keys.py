@@ -1,4 +1,9 @@
-"""Kontrolli, kas staging tabelite võtmed sobituvad."""
+"""Kontrolli, kas staging-tabelite võtmed sobituvad.
+
+See skript ei muuda andmeid.
+Ta loeb võtmed andmebaasist, puhastab need võrreldavale kujule ja näitab,
+millised võtmed kattuvad ja millised jäävad kummaski allikas üksi.
+"""
 
 import os
 
@@ -7,6 +12,8 @@ from psycopg2 import sql
 
 
 def get_connection():
+    """Loo andmebaasiühendus keskkonnamuutujate põhjal."""
+
     return psycopg2.connect(
         host=os.environ.get("DB_HOST", "db"),
         port=os.environ.get("DB_PORT", "5432"),
@@ -17,19 +24,37 @@ def get_connection():
 
 
 def split_relation_name(relation_name):
+    """Jaga nimi kujul `skeem.objekt` kaheks eraldi osaks."""
+
     schema_name, table_name = relation_name.split(".", maxsplit=1)
     return schema_name, table_name
 
 
 def relation_exists(conn, relation_name):
+    """Kontrolli, kas antud tabel või vaade on andmebaasis olemas."""
+
     with conn.cursor() as cur:
+        # `to_regclass` tagastab objekti nime, kui see leidub,
+        # ja `NULL`, kui seda ei ole olemas.
         cur.execute("SELECT to_regclass(%s);", (relation_name,))
         return cur.fetchone()[0] is not None
 
 
 def fetch_normalized_keys(conn, relation_name, key_column):
+    """Loe tabelist välja puhastatud võtmed.
+
+    Puhastamine toimub SQL-is:
+    - `TRIM(...)` eemaldab tühikud algusest ja lõpust;
+    - `LOWER(...)` muudab teksti väikesteks tähtedeks.
+
+    Nii võrdleme võtmeid samal kujul, isegi kui allikates oli kirjapilt erinev.
+    """
+
     schema_name, table_name = split_relation_name(relation_name)
 
+    # Siin kasutame `psycopg2.sql` moodulit, sest tabeli- ja veerunimesid
+    # ei saa turvaliselt panna SQL-i sisse tavaliste `%s` parameetritega.
+    # `sql.Identifier(...)` märgib, et tegemist on SQL-identifikaatoriga.
     query = sql.SQL(
         """
         SELECT DISTINCT LOWER(TRIM({key_column}::text)) AS key_value
@@ -49,6 +74,14 @@ def fetch_normalized_keys(conn, relation_name, key_column):
 
 
 def compare_key_sets(left_keys, right_keys):
+    """Võrdle kahte võtmehulkade loendit.
+
+    `set` sobib siia hästi, sest hulga abil on lihtne leida:
+    - ühised võtmed;
+    - ainult vasakus allikas olevad võtmed;
+    - ainult paremas allikas olevad võtmed.
+    """
+
     left_key_set = set(left_keys)
     right_key_set = set(right_keys)
 
@@ -67,8 +100,13 @@ def print_check_keys(
     label_a,
     label_b,
 ):
+    """Prindi kahe allika võtmete võrdlus inimesele loetaval kujul."""
+
+    # Kõigepealt loeme mõlemast allikast sama võtme ühetaolisel kujul välja.
     left_keys = fetch_normalized_keys(conn, source_a, key)
     right_keys = fetch_normalized_keys(conn, source_b, key)
+
+    # Seejärel võrdleme kahte võtmehulkade loendit omavahel.
     comparison = compare_key_sets(left_keys, right_keys)
 
     print(f"- Võrdlus: {label_a} ja {label_b}")
@@ -89,8 +127,11 @@ def print_check_keys(
 
 
 def main():
+    """Käivita võtmekontroll põhiraja ja vajadusel lisaallika jaoks."""
+
     conn = get_connection()
     try:
+        # Põhirajal võrdleme API ja CSV allikat.
         print_check_keys(
             conn=conn,
             source_a="staging.api_users",
@@ -100,6 +141,7 @@ def main():
             label_b="CSV",
         )
 
+        # Kui õppija on teinud lisaülesande 1, on olemas ka JSON-i staging-tabel.
         if relation_exists(conn, "staging.notification_preferences"):
             print_check_keys(
                 conn=conn,
@@ -113,5 +155,6 @@ def main():
         conn.close()
 
 
+# See plokk käivitab `main()` ainult siis, kui paneme faili otse jooksma.
 if __name__ == "__main__":
     main()
