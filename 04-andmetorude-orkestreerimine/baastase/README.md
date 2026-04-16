@@ -111,6 +111,9 @@ Kui töötad Windowsis, siis arvesta kahe asjaga:
 - PowerShellis on samad kujundid vastavalt `$env:MUUTUJA = "..."` ja `$env:MUUTUJA`.
 
 PowerShelli erivormid on lisatud sinna, kus need erinevad Bashi näidetest.
+Shellifailide ja `crontab` faili puhul on oluline ka see, et reavahetused oleksid kujul `LF`, mitte `CRLF`.
+Repo juures olev fail `.gitattributes` aitab neid sellisel kujul hoida.
+Kui näed hiljem vigu nagu `^M`, `/entrypoint.sh: not found` või `bad minute`, vaata allpool tõrkeotsingu jaotist.
 
 Kui töötad GitHub Codespacesis, siis on praktikumi kaust tavaliselt siin:
 
@@ -1032,6 +1035,25 @@ docker compose exec scheduler sh -lc 'tail -n 50 /var/log/praktikum/pipeline.log
 ```
 
 Kui kõik valmis päevad on juba tehtud, siis on oodatav, et `cron` liigub aktiivse äripäeva uuesti töötlemise juurde.
+
+### Sümptom: scheduler ei käivitu või näed viga `^M`, `/entrypoint.sh: not found` või `bad minute`
+
+Tõenäoline põhjus: Windows salvestas faili `scheduler/entrypoint.sh` või `scheduler/crontab` `CRLF` reavahetustega.
+
+Lahendus:
+
+Need käsud töötavad samal kujul nii Git Bashis kui ka PowerShellis.
+
+```bash
+docker compose down
+git pull
+git restore --source=HEAD --worktree scheduler/entrypoint.sh scheduler/crontab
+docker compose up -d --build
+```
+
+Kui oled neid faile ise muutnud, siis on turvalisem avada need `VS Code`-is, valida akna allservast reavahetuseks `LF`, salvestada failid uuesti ja alles siis teenused uuesti käivitada.
+
+Fail `.gitattributes` aitab seda edaspidi vältida, kuid juba valede reavahetustega kohalikud failid võivad vajada ühekordset taastamist või uuesti salvestamist.
 
 ### Sümptom: kontrollpäringute fail ei avane käsuga `psql -f scripts/01_check_pipeline.sql`
 

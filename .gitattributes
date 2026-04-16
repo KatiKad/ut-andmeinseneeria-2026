@@ -1,0 +1,19 @@
+* text=auto
+
+*.sh text eol=lf
+*.py text eol=lf
+*.sql text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.csv text eol=lf
+*.env.example text eol=lf
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+
+04-andmetorude-orkestreerimine/baastase/scheduler/crontab text eol=lf
+
+*.parquet binary
+*.pdf binary
+*.zip binary
