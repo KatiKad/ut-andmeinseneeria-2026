@@ -1,0 +1,46 @@
+services:
+
+  # Apache Kafka KRaft režiimis (ilma ZooKeeperita).
+  # apache/kafka on Apache Software Foundationi ametlik image (vaba kasutus).
+  kafka:
+    image: apache/kafka:4.2.0
+    container_name: praktikum8_kafka
+    ports:
+      # Avame ka hostile, et soovi korral saaksid välised tööriistad ühenduda.
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # Teadlikult välja lülitatud, et õppija peaks ise teemat looma.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # Fikseeritud klastri ID, et broker üle taaskäivituse stabiilsena säiliks.
+      # Uue ID genereerimiseks: docker run --rm apache/kafka:4.2.0 kafka-storage.sh random-uuid
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qg
+
+  # Jupyter koos PySparkiga. Spark 4.1.1 (Scala 2.13).
+  # Vajalikud paketid (kafka-python-ng, delta-spark) installitakse notebooki esimestes lahtrites.
+  jupyter:
+    image: quay.io/jupyter/pyspark-notebook:2026-04-27
+    container_name: praktikum8_jupyter
+    depends_on:
+      - kafka
+    ports:
+      - "8888:8888"   # Jupyteri kasutajaliides
+      - "4040:4040"   # Spark UI (uue SparkContexti loomisel võib pordinumber suureneda)
+    volumes:
+      - ./work/:/home/jovyan/work
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-praktikum}
+    command: >
+      start-notebook.py
+      --ServerApp.token=${JUPYTER_TOKEN:-praktikum}
+      --ServerApp.password=''
+      --ServerApp.allow_origin='*'
+      --ServerApp.allow_remote_access=True
