@@ -2,7 +2,7 @@
 
 ## Eesmärk
 
-Ehitada voogandmete (_streaming_) andmetoru, mis loeb sündmusi Apache Kafkast, töötleb neid Spark Structured Streamingu abil ning kirjutab tulemused Delta tabelisse. Praktikumi käigus tutvud Kafka põhikontseptsioonidega (teema, partitsioon, nihke, tarbijagrupp), õpid kasutama sündmuse aja (_event time_) põhiseid akende agregatsioone koos vesimärgiga (_watermark_) ning näed, kuidas kontrollpunkt (_checkpoint_) tagab idempotentse taaskäivituse.
+Ehitada voogandmete (_streaming_) andmetoru, mis loeb sündmusi Apache Kafkast, töötleb neid Spark Structured Streamingu abil ning kirjutab tulemused Delta tabelisse. Praktikumi käigus tutvud Kafka põhikontseptsioonidega (teema (_topic_), partitsioon (_partition_), nihe (_offset_), tarbijagrupp (_consumer group_)), õpid kasutama sündmuse aja (_event time_) põhiseid akende agregatsioone koos vesimärgiga (_watermark_) ning näed, kuidas kontrollpunkt (_checkpoint_) tagab idempotentse taaskäivituse.
 
 ## Õpiväljundid
 
@@ -11,9 +11,9 @@ Praktikumi lõpuks osaleja:
 - Käivitab Kafka maakleri KRaft režiimis ja loob teema (_topic_) soovitud partitsioonide arvuga.
 - Selgitab partitsioonisisese järjekorra garantiid ja loeb tarbijagrupi mahajäämust (_consumer group lag_).
 - Loob Spark Structured Streamingu päringu, mis loeb Kafkast (`readStream.format("kafka")`), parsib JSON-sõnumi ning kirjutab tulemuse väljundisse.
-- Rakendab kiikuvat (_tumbling_) ja libisevat (_sliding_) akent koos vesimärgiga sündmuse aja põhiseks agregeerimiseks.
+- Rakendab kattuvat (_tumbling_) ja libisevat (_sliding_) akent koos vesimärgiga sündmuse aja põhiseks agregeerimiseks.
 - Võrdleb väljundirežiime (_output mode_): `append`, `complete`, `update`.
-- Kirjutab voo Delta tabelisse, taaskäivitab päringu ja tõestab, et kontrollpunkt välistab dubleerimise.
+- Kirjutab voo Delta tabelisse, taaskäivitab päringu ja tõestab, et kontrollpunkt välistab andmete dubleerimise.
 - Rikastab voogu staatilise andmestiku liitmisega (_streaming-static join_).
 - Väljendab sama akenduse päringu nii DataFrame API kui ka Spark SQL kujul ning loeb `explain()` plaani.
 
@@ -21,7 +21,7 @@ Praktikumi lõpuks osaleja:
 
 | Osa | Sisu |
 |-----|------|
-| Demo | Kafka alused, struktureeritud voogtöötlus algusest lõpuni, akendega agregeerimine, projektimustrid (Delta sink, voo ja staatilise andmestiku liitmine, Spark SQL võrdlus) |
+| Demo | Kafka alused, struktureeritud voogtöötlus algusest lõpuni, akendega agregeerimine, keerukamad mustrid (Delta sink, voo ja staatilise andmestiku liitmine, Spark SQL võrdlus) |
 | Ülesanded | Libisev aken vesimärgiga, väljundirežiimide võrdlus, Delta sink ja agregaadi salvestamine |
 
 ---
@@ -43,13 +43,13 @@ docker compose down
 |--------|----------|
 | **Teema** (_topic_) | Kafka loogiline kanal, kuhu tootja (_producer_) avaldab sõnumid ja millest tarbija (_consumer_) neid loeb. |
 | **Partitsioon** (_partition_) | Teema alamjaotus. Sõnumid jagunevad partitsioonide vahel. Iga partitsioon on järjestatud, kuid partitsioonide üleselt järjekorda ei garanteerita. |
-| **Nihke** (_offset_) | Sõnumi järjekorranumber partitsiooni sees. Tarbija salvestab oma viimati loetud nihke, et tarbimist hiljem jätkata. |
+| **Nihe** (_offset_) | Sõnumi järjekorranumber partitsiooni sees. Tarbija salvestab oma viimati loetud nihke, et tarbimist hiljem jätkata. |
 | **Tarbijagrupp** (_consumer group_) | Tarbijate hulk, kes jagavad omavahel teema partitsioonid. Iga partitsiooni loeb grupi sees ainult üks tarbija. |
 | **Mahajäämus** (_lag_) | Vahe partitsiooni viimase nihke ja tarbija viimase salvestatud nihke vahel. Näitab, kui palju sõnumeid on tarbijal töötlemata. |
 | **Struktureeritud voogtöötlus** (_Structured Streaming_) | Sparki API voogandmete töötlemiseks. Voog käitub nagu lõputult kasvav DataFrame. |
 | **Sündmuse aeg** (_event time_) | Ajatempel, mille tootja sõnumi kehasse paneb. See on aeg, mil sündmus reaalmaailmas toimus. |
 | **Töötluse aeg** (_processing time_) | Ajatempel hetkel, mil Spark sõnumi vastu võtab. Erineb sündmuse ajast, sest sõnumid võivad hilineda. |
-| **Kattuvuseta aken** (_tumbling window_) | Sama suurusega ja kattumata aknad. Iga sündmus kuulub täpselt ühte aknasse. |
+| **Kattuvuseta aken** (_tumbling window_) | Sama suurusega ja kattuvuseta aknad. Iga sündmus kuulub täpselt ühte aknasse. |
 | **Libisev aken** (_sliding window_) | Sama suurusega aknad, mis kattuvad. Sündmus võib kuuluda mitmesse aknasse korraga. |
 | **Vesimärk** (_watermark_) | Spark loobub vanade akende olekust, kui sündmuse aja maksimum on aknaga lõpust kaugemal kui vesimärgi piir. Hoiab mälukulu kontrolli all. |
 | **Väljundirežiim** (_output mode_) | Määrab, mida päring igal käivitamisel väljundisse kirjutab: `append` (ainult uued read), `complete` (kogu tulemustabel), `update` (ainult muutunud read). |
@@ -64,7 +64,7 @@ https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
 Ametlik juhend Kafka konnektorist Sparkis.
 
 * **Structured Streaming Programming Guide**
-https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html
+https://spark.apache.org/docs/latest/streaming/index.html
 Põhjalik tutvustus voogtöötluse mudelist, eriti sündmuse aja, vesimärkide ja väljundirežiimide jaotised.
 
 * **Apache Kafka dokumentatsioon**
@@ -73,7 +73,7 @@ Kafka enda kontseptsioonide ja CLI tööriistade viide.
 
 * **Delta Lake**
 https://delta.io/
-Delta tabelite vorming, ACID, ajas tagasiminek.
+Delta tabelite vorming, ACID, ajas tagasiminek (_time travel_).
 
 ---
 
@@ -167,15 +167,17 @@ Notebookis kasutame Kafkaga suhtlemiseks `kafka-python-ng` Pythoni teeki. Sama t
 
 | Tegevus | Käsk |
 |---------|------|
-| Loo teema | `docker exec praktikum8_kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic sensor-events --partitions 3 --replication-factor 1` |
-| Loetle teemad | `docker exec praktikum8_kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list` |
-| Kirjelda teemat | `docker exec praktikum8_kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic sensor-events` |
-| Konsoolitootja | `docker exec -it praktikum8_kafka /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic sensor-events` |
-| Konsoolitarbija | `docker exec praktikum8_kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensor-events --from-beginning` |
-| Tootja võtmega (vorming `võti:väärtus`) | `docker exec -it praktikum8_kafka /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic sensor-events --property parse.key=true --property key.separator=:` |
-| Tarbijagrupi mahajäämus | `docker exec praktikum8_kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group <grupi-id>` |
+| Loo teema | `docker exec praktikum8_kafka bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic sensor-events --partitions 3 --replication-factor 1"` |
+| Loetle teemad | `docker exec praktikum8_kafka bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"` |
+| Kirjelda teemat | `docker exec praktikum8_kafka bash -c "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic sensor-events"` |
+| Konsoolitootja | `docker exec -it praktikum8_kafka bash -c "/opt/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic sensor-events"` |
+| Konsoolitarbija | `docker exec praktikum8_kafka bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensor-events --from-beginning"` |
+| Tootja võtmega (vorming `võti:väärtus`) | `docker exec -it praktikum8_kafka bash -c "/opt/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic sensor-events --reader-property parse.key=true --reader-property key.separator=:"` |
+| Tarbijagrupi mahajäämus | `docker exec praktikum8_kafka bash -c "/opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group <grupi-id>"` |
 
 > Loo paar sõnumit sama võtmega ja seejärel tarbi iga partitsiooni eraldi (`--partition 0`, `--partition 1`, ...). Näed, et sama võtmega sõnumid satuvad alati ühte partitsiooni. Järjekord on garanteeritud partitsiooni sees, mitte partitsioonide üleselt.
+
+Nt: `docker exec praktikum8_kafka bash -c "/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensor-events --partition 0 --from-beginning"`
 
 ---
 
@@ -185,15 +187,15 @@ Ava Jupyter ja seal fail `work/praktikum8_voogandmed.ipynb`. Käivita lahtrid j�
 
 ### 1. Kafka alused
 
-Alusta Kafka teema loomisest (3 partitsiooni). Saada üheksa võtmega sõnumit (kolme sensori kohta kolm sõnumit). Tarbi sõnumid ja vaatle, millisesse partitsiooni iga sõnum jõudis. Lõpuks vaata tarbijagrupi nihked.
+Alusta Kafka teema loomisest (3 partitsiooni). Saada üheksa võtmega sõnumit (kolme sensori kohta kolm sõnumit). Tarbi sõnumid ja vaatle, millisesse partitsiooni iga sõnum jõudis. Lõpuks vaata tarbijagrupi nihkeid.
 
 Kontrollikoht: sama `sensor_id` väärtusega sõnumid jõuavad alati samasse partitsiooni. See järeldub Kafka vaikejaoturist (_default partitioner_), mis arvutab partitsiooni võtme räsist (_hash_).
 
 ### 2. Struktureeritud voogtöötlus algusest lõpuni
 
-Loe Kafka teemast voog (`readStream.format("kafka")`). Vaata Kafka DataFrame'i toorskeemi. Parsi JSON väärtus eraldi veergudeks. Kirjuta voog **mälusihtkoht-i** ja vaata tulemust `spark.sql("SELECT * FROM raw_events")` kaudu.
+Loe Kafka teemast voog (`readStream.format("kafka")`). Vaata Kafka DataFrame'i toorskeemi. Parsi JSON väärtus eraldi veergudeks. Kirjuta voog **mälusihtkohta** ja vaata tulemust `spark.sql("SELECT * FROM raw_events")` kaudu.
 
-> Mälusihtkoht on **ainult silumiseks** mõeldud. Tootmises kasuta failipõhist või Delta sinki.
+> Mälusihtkoht on **ainult silumiseks** mõeldud. Toodangus kasutatakse failipõhist sihtkohta, Delta tabelit, andmebaasi, jne.
 
 Demo ajal toodame jooksvalt uusi sõnumeid ja jälgime, kuidas need pärast järgmist käivitustsüklit (`processingTime="3 seconds"`) tabelisse lisanduvad.
 
@@ -211,7 +213,7 @@ Loo voo päring, mis grupeerib sõnumeid 1-minutilise kattuvuseta akna ja sensor
 3. **Valik ja põhjendus.** `update` koos vesimärgiga. Tootmises on mälu kontrolli all hoidmine kriitiline ja pisike osa hilinenud sündmusi on tavaliselt aktsepteeritav kompromiss.
 4. **Kompromissid.** Hilinenud sündmused, mis ületavad vesimärgi piiri, kaovad. Vesimärgi suurus tuleb valida domeeni järgi: kui sündmused võivad hilineda kuni 10 minutit, võta vesimärgiks 10 minutit, mitte 1.
 
-### 4. Projektimustrid
+### 4. Keerukamad mustrid
 
 #### 4.1. Kirjutamine Delta tabelisse ja kontrollpunkti taaskäivitus
 
@@ -257,7 +259,7 @@ Kirjuta voo päring, mis:
 
 **Vihje.** `F.window(time_col, windowDuration, slideDuration)` võtab kolmandaks argumendiks libiseva sammu.
 
-**Arutelu.** Mitu aknarida tekib ühe sündmuse kohta? Miks? Millal eelistada libisevat akent kiikuvale?
+**Arutelu.** Mitu aknarida tekib ühe sündmuse kohta? Miks? Millal eelistada libisevat akent kattuvale?
 
 ### Ülesanne 2: Väljundirežiimi võrdlus
 
