@@ -39,8 +39,8 @@ Selle praktikumi eesmärk on teha läbi väike sündmuspõhine töövoog, kus ve
 Kasutame nelja teenust:
 
 - PostgreSQL-i andmebaas hoiab sündmuste logi ja analüütika tabeleid;
-- Redis on sõnumimaakler ehk järjekord;
-- Celery worker ehk töötegija võtab Redisest tööülesanded;
+- Redis (https://redis.io/) on sõnumimaakler ehk järjekord;
+- Celery worker ehk töötegija (https://docs.celeryq.dev/en/stable/) võtab Redisest tööülesanded;
 - Pythoni käsukonteiner simuleerib veebipoodi.
 
 Praktikum ei asenda Apache Kafka teemat. Siin õpime esmalt selgeks tootja, maakleri, worker'i, sündmuse aja ja idempotentsuse põhiloogika. Edasijõudnute praktikumis tehakse sama teema logipõhise voogedastusplatvormiga Apache Kafka ja Apache Spark Structured Streaming abil.
@@ -54,7 +54,7 @@ Praktikumi lõpuks oskad:
 - selgitada, mida teevad teenused `db`, `redis`, `app` ja `worker`;
 - avaldada veebipoe müügisündmuseid Pythoni käsuga;
 - jälgida, kuidas Celery worker töötleb Redise järjekorras olevaid tööülesandeid;
-- kontrollida `SQL`-iga (`Structured Query Language`, andmebaaside päringukeel), millised sündmused on avaldatud, järjekorda saadetud, töödeldud või vigased;
+- kontrollida `SQL`-iga, millised sündmused on avaldatud, järjekorda saadetud, töödeldud või vigased;
 - selgitada, miks sama sündmuse korduv töötlemine ei tohi teha topeltridu;
 - eristada sündmuse aega ja töötluse aega;
 - ehitada lihtsa 5 minuti akna põhise müügikoondi;
@@ -195,7 +195,7 @@ Näiteks veebipoes ei taha me ostu kinnitamise hetkel kõiki kõrvaltegevusi sam
 - analüütika koondi uuendamine;
 - teavituse saatmine;
 - püsikliendi punktide arvestus;
-- arve PDF-faili (`Portable Document Format`) loomine;
+- arve PDF-faili loomine;
 - riskikontrolli või kvaliteedikontrolli lisasamm.
 
 Need tegevused võivad toimuda taustal. See teeb kasutaja jaoks põhitegevuse kiiremaks ja süsteemi paindlikumaks.
