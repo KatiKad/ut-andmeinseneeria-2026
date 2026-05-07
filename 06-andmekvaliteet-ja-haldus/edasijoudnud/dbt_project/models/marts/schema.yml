@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: dim_users
+    description: "Kasutajate dimensioonitabel. Sisaldab isikuandmeid (PII): nimi, e-post, asukoht."
+    columns:
+      - name: user_key
+        description: "Kasutaja unikaalne tunnusvõti (UUID). Kasutatakse faktitabelites viitamiseks."
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "Kasutaja numbriline tunnus staging kihist"
+        tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: "Kasutaja täisnimi (eesnimi + perekonnanimi). Isikuandmed (PII)."
+      - name: email
+        description: "Kasutaja e-posti aadress. Isikuandmed (PII)."
+        tests:
+          - not_null
+      - name: city
+        description: "Kasutaja praegune elukoha linn"
+      - name: country
+        description: "Kasutaja elukoha riik"
+      - name: registered_date
+        description: "Kasutaja registreerimise kuupäev"
+
+  - name: fct_posts
+    description: "Postituste faktitabel koos kasutajadimensiooniga. Iga rida esindab ühte postitust."
+    columns:
+      - name: post_id
+        description: "Postituse unikaalne tunnus"
+        tests:
+          - unique
+          - not_null
+      - name: user_key
+        description: "Viide kasutajadimensioonile (dim_users.user_key)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_users')
+              field: user_key
+      - name: author_name
+        description: "Postituse autori täisnimi"
+      - name: title
+        description: "Postituse pealkiri"
+      - name: body_length
+        description: "Postituse sisu pikkus tähemärkides"
+        tests:
+          - not_null
+      - name: loaded_at
+        description: "Postituse laadimise ajatempel"
+
+  - name: user_post_summary
+    description: "Kasutajate postituste kokkuvõte (inkrementaalne). Üks rida kasutaja kohta."
+    columns:
+      - name: user_key
+        description: "Kasutaja unikaalne tunnusvõti"
+        tests:
+          - unique
+          - not_null
+      - name: total_posts
+        description: "Kasutaja postituste koguarv"
+      - name: avg_post_length
+        description: "Kasutaja postituste keskmine pikkus tähemärkides"

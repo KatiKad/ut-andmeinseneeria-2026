@@ -1,0 +1,71 @@
+version: 2
+
+sources:
+  - name: staging
+    schema: staging
+    description: "Praktikumi toorandmed. Siia jõuavad kuised snapshotid ja API tellimused enne dbt transformatsioone."
+    tables:
+      - name: product_snapshots_raw
+        description: "Toodete kuised snapshotid. Iga rida kirjeldab ühe toote seisu ühes kuus."
+        columns:
+          - name: snapshot_month
+            description: "Selle kuuseisu kuu esimene kuupäev."
+            tests:
+              - not_null
+          - name: product_id
+            description: "Toote äriline tunnus."
+            tests:
+              - not_null
+          - name: product_name
+            description: "Toote nimi snapshoti hetkel."
+            tests:
+              - not_null
+          - name: category
+            description: "Toote kategooria."
+            tests:
+              - not_null
+          - name: base_price_eur
+            description: "Snapshotis olnud baashind eurodes."
+            tests:
+              - not_null
+
+      - name: store_snapshots_raw
+        description: "Poodide kuised snapshotid. Iga rida kirjeldab ühe poe seisu ühes kuus."
+        columns:
+          - name: snapshot_month
+            description: "Selle kuuseisu kuu esimene kuupäev."
+            tests:
+              - not_null
+          - name: store_id
+            description: "Poe äriline tunnus."
+            tests:
+              - not_null
+          - name: store_name
+            description: "Poe nimi snapshoti hetkel."
+            tests:
+              - not_null
+          - name: city
+            description: "Poe linn."
+            tests:
+              - not_null
+          - name: region
+            description: "Poe piirkond."
+            tests:
+              - not_null
+
+      - name: orders_raw
+        description: "Tellimuste toorread kohalikust API-st. Siin võivad veel olla kvaliteedivead."
+        columns:
+          - name: staging_row_id
+            description: "Tehniline ridade tunnus staging tabelis."
+            tests:
+              - unique
+              - not_null
+          - name: order_date
+            description: "Tellimuse kuupäev."
+            tests:
+              - not_null
+          - name: source_updated_at
+            description: "Allikasüsteemi ajatempel, millal rida viimati uuendati."
+            tests:
+              - not_null

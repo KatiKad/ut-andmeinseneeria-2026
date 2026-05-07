@@ -1,0 +1,74 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    container_name: praktikum-db-07
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    command: >
+      postgres
+      -c shared_preload_libraries='pgaudit,pg_duckdb'
+      -c pgaudit.log=read,write,role,ddl
+      -c pgaudit.log_catalog=off
+      -c pgaudit.log_parameter=on
+      -c pgaudit.log_relation=on
+      -c pgaudit.log_level=log
+      -c "log_line_prefix=%m [%p] %q%u@%d "
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      retries: 10
+
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: praktikum-python-07
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/scripts
+    working_dir: /scripts
+    tty: true
+
+  dbt:
+    build:
+      context: .
+      dockerfile: Dockerfile.dbt
+    container_name: praktikum-dbt-07
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./dbt_project:/dbt
+    working_dir: /dbt
+    tty: true
+    ports:
+      - "18080:8080"
+
+volumes:
+  pgdata:

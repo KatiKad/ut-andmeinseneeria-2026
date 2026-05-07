@@ -1,0 +1,30 @@
+name: praktikum_07
+version: "1.0.0"
+profile: praktikum_07
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  praktikum_07:
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+    secured:
+      +materialized: view
+      +schema: secured
+
+on-run-start:
+  - "{{ ensure_pgaudit_extension() }}"
+
+# dbt grants config annab ainult SELECT-oiguse objektile.
+# Skeema-tasandi USAGE oigus on eraldi - ilma selleta ei saa rollid skeemasse siseneda.
+on-run-end:
+  - "GRANT USAGE ON SCHEMA secured TO analyst, marketing, regional_manager, auditor"
+  - "GRANT USAGE ON SCHEMA marts TO auditor"

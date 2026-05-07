@@ -1,0 +1,82 @@
+services:
+  db:
+    image: pgduckdb/pgduckdb:18-v1.1.1
+    container_name: praktikum-db-06-base
+    env_file:
+      - .env
+    ports:
+      - "${DB_PORT_HOST:-5436}:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - pgdata_06_base:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-praktikum} -d ${POSTGRES_DB:-praktikum}"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  source-api:
+    image: python:3.13-slim
+    container_name: praktikum-source-api-06-base
+    env_file:
+      - .env
+    environment:
+      PORT: "${SOURCE_API_PORT:-8016}"
+      SOURCE_START_DATE: "${SOURCE_START_DATE:-2026-03-01}"
+      SOURCE_END_DATE: "${SOURCE_END_DATE:-2026-04-30}"
+    working_dir: /app
+    volumes:
+      - ./source_api:/app/source_api
+    command: ["python", "/app/source_api/server.py"]
+    ports:
+      - "${SOURCE_API_PORT_HOST:-8016}:${SOURCE_API_PORT:-8016}"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${SOURCE_API_PORT:-8016}/health', timeout=5).read()\"",
+        ]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: praktikum-python-06-base
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      source-api:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/app/scripts
+      - ./source_data:/app/source_data
+    working_dir: /app
+    tty: true
+
+  dbt:
+    build:
+      context: .
+      dockerfile: Dockerfile.dbt
+    container_name: praktikum-dbt-06-base
+    env_file:
+      - .env
+    environment:
+      DBT_PROFILES_DIR: /dbt
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./dbt_project:/dbt
+    working_dir: /dbt
+    ports:
+      - "${DBT_DOCS_PORT_HOST:-18086}:8080"
+    tty: true
+
+volumes:
+  pgdata_06_base:
+    name: praktikum-db-06-base-pgdata

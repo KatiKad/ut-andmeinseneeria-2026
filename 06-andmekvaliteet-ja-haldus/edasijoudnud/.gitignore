@@ -1,0 +1,4 @@
+.env
+docker-volume/
+dbt_project/target/
+dbt_project/logs/

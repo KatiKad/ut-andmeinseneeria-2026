@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: order_rule_results
+    description: "Kvaliteedireeglite rikkumiste detailtabel. Üks rida tähistab üht ebaõnnestunud reeglit ühel toorreal."
+    columns:
+      - name: staging_row_id
+        description: "Viide staging.orders_raw reale."
+        tests:
+          - not_null
+      - name: rule_name
+        description: "Lühike reegli nimi."
+        tests:
+          - not_null
+      - name: issue_message
+        description: "Inimeseloetav selgitus, miks rida tagasi lükati."
+        tests:
+          - not_null
+      - name: checked_at
+        description: "Aeg, millal dbt selle kontrolli jooksu ehitas."
+        tests:
+          - not_null
+
+  - name: order_issue_summary
+    description: "Reeglite lühikokkuvõte. Näitab, mitu rida iga kontrolli tõttu läbi kukkus."
+    columns:
+      - name: rule_name
+        description: "Reegli nimi."
+        tests:
+          - unique
+          - not_null
+      - name: failed_rows
+        description: "Rikete arv selle reegli kohta."
+        tests:
+          - not_null
+
+  - name: orders_clean
+    description: "Tellimused, mis läbisid kõik kvaliteedikontrollid ja millele leiti õige dimensiooni versioon."
+    columns:
+      - name: staging_row_id
+        description: "Viide lähtetabeli reale."
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Puhastatud tellimuse tunnus."
+        tests:
+          - not_null
+      - name: store_version_key
+        description: "Viide poe SCD dimensioonile."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_stores_scd')
+                field: store_version_key
+      - name: product_version_key
+        description: "Viide toote SCD dimensioonile."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products_scd')
+                field: product_version_key
+      - name: line_amount_eur
+        description: "Tellimuserida kogus x ühikuhind."
+        tests:
+          - not_null

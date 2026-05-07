@@ -1,0 +1,13 @@
+osaleja_id,eesnimi,perenimi,email,telefon,linn,maakond,kursus,staatus,registreerumise_kuupaev
+O-1001,Maarja,Kask,maarja.kask.naidis@example.test,+372 512 1001,Tartu,Tartumaa,Andmebaasid,aktiivne,2026-02-03
+O-1002,Rasmus,Lepp,rasmus.lepp.naidis@example.test,+372 512 1002,Tallinn,Harjumaa,Andmebaasid,aktiivne,2026-02-05
+O-1003,Kadri,Saar,kadri.saar.naidis@example.test,+372 512 1003,Pärnu,Pärnumaa,Andmetorud,aktiivne,2026-02-06
+O-1004,Martin,Tamm,martin.tamm.naidis@example.test,+372 512 1004,Viljandi,Viljandimaa,Andmetorud,pausil,2026-02-09
+O-1005,Liis,Org,liis.org.naidis@example.test,+372 512 1005,Rakvere,Lääne-Virumaa,Andmekvaliteet,aktiivne,2026-02-11
+O-1006,Kristjan,Mägi,kristjan.magi.naidis@example.test,+372 512 1006,Võru,Võrumaa,Andmekvaliteet,aktiivne,2026-02-12
+O-1007,Helena,Paju,helena.paju.naidis@example.test,+372 512 1007,Kuressaare,Saaremaa,Andmeturve,aktiivne,2026-02-14
+O-1008,Toomas,Kivi,toomas.kivi.naidis@example.test,+372 512 1008,Haapsalu,Läänemaa,Andmeturve,aktiivne,2026-02-15
+O-1009,Anu,Roos,anu.roos.naidis@example.test,+372 512 1009,Jõgeva,Jõgevamaa,Andmebaasid,loobunud,2026-02-17
+O-1010,Siim,Laas,siim.laas.naidis@example.test,+372 512 1010,Valga,Valgamaa,Andmetorud,aktiivne,2026-02-18
+O-1011,Triin,Sepp,triin.sepp.naidis@example.test,+372 512 1011,Rapla,Raplamaa,Andmekvaliteet,pausil,2026-02-20
+O-1012,Oliver,Nõmm,oliver.nomm.naidis@example.test,+372 512 1012,Jõhvi,Ida-Virumaa,Andmeturve,aktiivne,2026-02-21

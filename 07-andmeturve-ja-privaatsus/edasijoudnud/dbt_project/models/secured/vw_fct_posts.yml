@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: vw_fct_posts
+    description: "Rollipohine vaade fct_posts peal (pg_has_role)"

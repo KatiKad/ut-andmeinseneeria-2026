@@ -1,0 +1,6 @@
+FROM pgduckdb/pgduckdb:18-v1.1.1
+USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-18-pgaudit \
+ && rm -rf /var/lib/apt/lists/*
+USER postgres

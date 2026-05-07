@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: dim_users_regional_base
+    description: "RLS demo: regional_manager naeb ainult oma regiooni kasutajaid; email-veerg keelatud column-level GRANT-iga"

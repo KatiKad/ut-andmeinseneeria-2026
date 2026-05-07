@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: daily_product_sales_clean
+    description: "Puhastatud päevane müügikoond. See sobib raporti või näidikulaua alusandmeks."
+    columns:
+      - name: sales_date
+        description: "Müügikuupäev."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Poe äriline tunnus."
+        tests:
+          - not_null
+      - name: product_id
+        description: "Toote äriline tunnus."
+        tests:
+          - not_null
+      - name: gross_sales_eur
+        description: "Puhas bruto käive eurodes."
+        tests:
+          - not_null
+      - name: built_at
+        description: "Aeg, millal see koond ehitati."
+        tests:
+          - not_null
+
+  - name: quality_overview
+    description: "Kvaliteedijooksu koondnäitajad ühe rea kujul."
+    columns:
+      - name: raw_order_rows
+        description: "Kõik toorread enne filtreerimist."
+        tests:
+          - not_null
+      - name: clean_order_rows
+        description: "Puhaste ridade arv."
+        tests:
+          - not_null
+      - name: rejected_row_count
+        description: "Tagasi lükatud tooridade arv."
+        tests:
+          - not_null
+      - name: total_rule_failures
+        description: "Kõigi reeglirikkumiste koguarv."
+        tests:
+          - not_null
+      - name: rejected_row_percent
+        description: "Tagasi lükatud ridade osakaal protsentides."
+        tests:
+          - not_null

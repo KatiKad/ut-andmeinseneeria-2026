@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: vw_dim_users
+    description: "Rollipohine vaade dim_users peal (pg_has_role)"

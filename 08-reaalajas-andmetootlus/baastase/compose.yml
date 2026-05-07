@@ -1,0 +1,90 @@
+# Käivitamine:
+#   cp .env.example .env
+#   docker compose up -d --build
+
+services:
+  db:
+    image: pgduckdb/pgduckdb:18-v1.1.1
+    container_name: praktikum-db-08-base
+    env_file:
+      - .env
+    ports:
+      - "${DB_PORT_HOST:-5438}:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - pgdata_08_base:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-praktikum} -d ${POSTGRES_DB:-praktikum}"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    container_name: praktikum-redis-08-base
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: praktikum-app-08-base
+    env_file:
+      - .env
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-praktikum}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-praktikum}
+      PGDATABASE: ${POSTGRES_DB:-praktikum}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/app/scripts
+      - ./source_data:/app/source_data
+    working_dir: /app
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: praktikum-worker-08-base
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/app/scripts
+      - ./source_data:/app/source_data
+    working_dir: /app
+    command:
+      [
+        "celery",
+        "-A",
+        "scripts.celery_app",
+        "worker",
+        "--loglevel=INFO",
+        "--concurrency=1",
+        "--hostname=praktikum8-worker@%h",
+      ]
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'celery.*worker' >/dev/null"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  pgdata_08_base:
+    name: praktikum-db-08-base-pgdata

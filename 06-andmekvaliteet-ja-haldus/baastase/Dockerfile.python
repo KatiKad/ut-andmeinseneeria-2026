@@ -1,0 +1,29 @@
+FROM python:3.13-slim
+
+# Hoiame Pythoni logid kohe nähtavana ja seame konteinerile
+# eestikeelse UTF-8 locale'i ning mugavama pageri.
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    TZ=Europe/Tallinn \
+    LANG=et_EE.UTF-8 \
+    LANGUAGE=et_EE:et \
+    LC_ALL=et_EE.UTF-8 \
+    PAGER=less \
+    LESS=-SFXR
+
+# Selles konteineris käivitame praktikumi Pythoni skripti,
+# kasutame psql klienti ja loeme source_data failid sisse
+# samast konteinerist.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash less locales postgresql-client tzdata \
+    # Debian slim baaspildis ei ole eesti locale vaikimisi loodud.
+    # Genereerime selle eraldi, et täpitähed töötaksid terminalis ja psql-is korrektselt.
+    && sed -i '/^# *et_EE.UTF-8 UTF-8/s/^# *//' /etc/locale.gen \
+    && locale-gen et_EE.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY scripts/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /app
+ENTRYPOINT ["bash"]

@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+work/.ipynb_checkpoints/
+work/spark-warehouse/
+work/metastore_db/
+work/derby.log
+tmp/bronze/
+tmp/silver/
+tmp/gold/
+tmp/chk-*/

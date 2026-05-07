@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: int_users
+    columns:
+      - name: user_id
+        tests: [unique, not_null]
+      - name: uuid
+        tests: [unique, not_null]
+      - name: first_name
+        meta: { contains_pii: true }
+      - name: last_name
+        meta: { contains_pii: true }
+      - name: email
+        meta: { contains_pii: true }
+        tests: [not_null]
+      - name: city
+        meta: { contains_pii: true }
+      - name: state
+        meta: { contains_pii: true }
+      - name: street
+        meta: { contains_pii: true }
+      - name: postcode
+        meta: { contains_pii: true }
+      - name: country
+        meta: { contains_pii: false }
+      - name: registered_date
+        meta: { contains_pii: false }

@@ -1,0 +1,25 @@
+name: praktikum_06_dbt
+version: "1.0.0"
+config-version: 2
+profile: praktikum_06_dbt
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages", "logs"]
+
+models:
+  praktikum_06_dbt:
+    +persist_docs:
+      relation: true
+      columns: true
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    quality:
+      +materialized: table
+      +schema: quality
+    marts:
+      +materialized: table
+      +schema: analytics

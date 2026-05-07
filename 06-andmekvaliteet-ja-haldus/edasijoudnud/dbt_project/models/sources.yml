@@ -1,0 +1,43 @@
+version: 2
+
+sources:
+  - name: staging
+    schema: staging
+    description: "API-st laetud toorandmed (bronze kiht). Andmed salvestatakse muutmata kujul."
+    tables:
+      - name: users
+        description: "Kasutajaprofiilid randomuser.me API-st. Sisaldab isikuandmeid: nimi, e-post, aadress."
+        columns:
+          - name: uuid
+            description: "Kasutaja globaalselt unikaalne tunnus (UUID v4)"
+            tests:
+              - unique
+              - not_null
+          - name: email
+            description: "Kasutaja e-posti aadress. Isikuandmed (PII)."
+            tests:
+              - not_null
+          - name: first_name
+            description: "Kasutaja eesnimi. Isikuandmed (PII)."
+          - name: last_name
+            description: "Kasutaja perekonnanimi. Isikuandmed (PII)."
+          - name: city
+            description: "Kasutaja elukoha linn"
+          - name: country
+            description: "Kasutaja elukoha riik"
+      - name: posts
+        description: "Postitused JSONPlaceholder API-st. Igal kasutajal on mitu postitust."
+        columns:
+          - name: id
+            description: "Postituse unikaalne tunnus"
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: "Viide kasutajale (staging.users.id)"
+            tests:
+              - not_null
+          - name: title
+            description: "Postituse pealkiri"
+          - name: body
+            description: "Postituse sisu"

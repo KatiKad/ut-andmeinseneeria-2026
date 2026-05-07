@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: fct_posts
+    description: "Postituste faktitabel"
+    columns:
+      - name: post_id
+        tests: [unique, not_null]
+      - name: user_key
+        tests: [not_null]
+      - name: author_name
+        meta: { contains_pii: true }
+      - name: title
+      - name: body
+      - name: body_length

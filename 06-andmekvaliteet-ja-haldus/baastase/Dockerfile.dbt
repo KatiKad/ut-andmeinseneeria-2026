@@ -1,0 +1,20 @@
+FROM python:3.13-slim
+
+# Hoiame selle konteineri teadlikult väikese:
+# siin käivitame ainult dbt käske ja vajadusel dbt docs serveri.
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    TZ=Europe/Tallinn
+
+RUN apt-get update \
+    # dbt debug kontrollib ka süsteemset git käsku.
+    # Seda vajab dbt eriti siis, kui projekt kasutab pakette või dbt deps sammu.
+    && apt-get install -y --no-install-recommends bash git tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# Piisab postgres adapterist.
+# dbt docs kuulub juba dbt Core koosseisu.
+RUN pip install --no-cache-dir dbt-postgres==1.10.0
+
+WORKDIR /dbt
+ENTRYPOINT ["bash"]
