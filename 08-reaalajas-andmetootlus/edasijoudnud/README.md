@@ -242,7 +242,7 @@ Käivita mõlemal `.explain()`. Plaanid on identsed, sest Catalyst optimeerija �
 
 ## Ülesanded
 
-Iga ülesande näidislahendus on failina kaustas `tmp/solution/`. Soovitus: ürita kõigepealt ise lahendada ja vaata näidislahendust alles seejärel.
+Vastusenäidised jagame hiljem GitHubis. Soovitus: ürita kõigepealt ise lahendada.
 
 ### Ülesanne 1: Libisev aken vesimärgiga
 
@@ -319,10 +319,3 @@ Ehita kahekihiline andmetoru:
 - **Diagnostika.** Kontrolli notebookis Sparki versiooni: `print(spark.version)`. Eeldus on `4.1.1`. Vaata Delta Lake'i ühilduvusmaatriksit aadressil https://docs.delta.io/latest/releases.html.
 - **Lahendus.** Kui Delta versioon ei ühildu, kohanda paketi versiooni `spark.jars.packages` konfiguratsioonis (notebooki esimene lahter). Vaikimisi on praktikumis kasutusel `io.delta:delta-spark_2.13:4.2.0`.
 
----
-
-## Lisamaterjal
-
-Kaustas `tmp/solution/` on lisaks ülesannete näidislahendustele ka skript `consumer_with_aggregation.py`. See teeb sama tööd, mis ülesanne 3 (sündmuste salvestamine ja akendega agregeerimine), kuid **ilma Sparki**: kasutab pelgalt `kafka-python` ja `psycopg2` teeke. Vaatle seda võrdluseks ja kaalu, millal eelistada raamistikku ja millal lihtsamat lähenemist.
-
-**Arutelu.** Millal on `kafka-python` + lihtne andmebaasiklient piisav? Millal on Spark Structured Streaming õige valik? Pane tähele tegureid: andmemaht, töötluse keerukus, vajaminev tagasiulatuv töötlemine, vea taastumine, meeskonna oskused.
