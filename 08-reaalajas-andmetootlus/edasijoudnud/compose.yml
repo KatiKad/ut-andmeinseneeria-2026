@@ -38,6 +38,7 @@ services:
       - ./work/:/home/jovyan/work
     environment:
       - JUPYTER_TOKEN=${JUPYTER_TOKEN:-praktikum}
+      - PYSPARK_SUBMIT_ARGS=--packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.1.1,io.delta:delta-spark_2.13:4.2.0 pyspark-shell
     command: >
       start-notebook.py
       --ServerApp.token=${JUPYTER_TOKEN:-praktikum}
